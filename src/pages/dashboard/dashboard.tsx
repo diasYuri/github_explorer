@@ -1,5 +1,12 @@
 import React from 'react'
 
+import logo from '../../assets/github.svg'
+
+import {Title} from "./style"
+
 export const Dashboard: React.FC = () => (
-  <h1>dashboard</h1>
+  <>
+    <img src={logo} alt="Github Explorer"/>
+    <Title>Dashboard</Title>
+  </>
 )
