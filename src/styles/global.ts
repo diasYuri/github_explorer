@@ -13,6 +13,7 @@ export default createGlobalStyle`
   body{
     background: #f0f0f5 url(${githubBackgroud}) no-repeat 70% top;
     -webkit-font-smooth: antialiased;
+    margin-top: 20px
   }
 
   body, input, button {
