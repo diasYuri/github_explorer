@@ -1,4 +1,5 @@
-import React, { useState, useRef, FormEvent } from 'react';
+import React, { useState, useRef, FormEvent, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { FiChevronRight } from 'react-icons/fi';
 import { api } from '../../services/api';
 
@@ -16,9 +17,18 @@ interface Repo {
 }
 
 export const Dashboard: React.FC = () => {
-  const [repos, setRepos] = useState<Repo[]>([]);
   const [inputError, setInputError] = useState('');
   const refInput = useRef<HTMLInputElement>(null);
+
+  const [repos, setRepos] = useState<Repo[]>(() => {
+    const storageRepos = localStorage.getItem('@GithubExplores:repositories');
+
+    if (storageRepos) {
+      return JSON.parse(storageRepos);
+    } else {
+      return [];
+    }
+  });
 
   async function handleAddRepo(
     event: FormEvent<HTMLFormElement>,
@@ -42,6 +52,10 @@ export const Dashboard: React.FC = () => {
     }
   }
 
+  useEffect(() => {
+    localStorage.setItem('@GithubExplores:repositories', JSON.stringify(repos));
+  }, [repos]);
+
   return (
     <>
       <img src={logo} alt="Github Explorer" />
@@ -58,14 +72,14 @@ export const Dashboard: React.FC = () => {
       <Repositories>
         {repos.map(repo => {
           return (
-            <a key={repo.full_name} href="/repository">
+            <Link key={repo.full_name} to={`/repository/${repo.full_name}`}>
               <img src={repo.owner.avatar_url} alt={repo.owner.login} />
               <div>
                 <strong>{repo.full_name}</strong>
                 <p>{repo.description}</p>
               </div>
               <FiChevronRight size={20} />
-            </a>
+            </Link>
           );
         })}
       </Repositories>
