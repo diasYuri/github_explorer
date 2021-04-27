@@ -4,7 +4,7 @@ import { api } from '../../services/api';
 
 import logo from '../../assets/github.svg';
 
-import { Title, Form, Repositories } from './style';
+import { Title, Form, Repositories, Error } from './style';
 
 interface Repo {
   full_name: string;
@@ -17,27 +17,36 @@ interface Repo {
 
 export const Dashboard: React.FC = () => {
   const [repos, setRepos] = useState<Repo[]>([]);
+  const [inputError, setInputError] = useState('');
   const refInput = useRef<HTMLInputElement>(null);
 
   async function handleAddRepo(
     event: FormEvent<HTMLFormElement>,
   ): Promise<void> {
     event.preventDefault();
-    if (refInput?.current?.value == '' || refInput?.current?.value == null) {
+
+    if (refInput?.current?.value === '') {
+      setInputError('Digite o autor/nome do repositório');
       return;
     }
-    const response = await api.get(`/repos/${refInput?.current?.value}`);
-    const repo: Repo = response.data;
 
-    setRepos([...repos, repo]);
-    refInput.current.value = '';
+    try {
+      const response = await api.get(`/repos/${refInput?.current?.value}`);
+      const repo: Repo = response.data;
+
+      setRepos([...repos, repo]);
+      setInputError('');
+      refInput.current!.value = '';
+    } catch (err) {
+      setInputError('Repositório não encontrado');
+    }
   }
 
   return (
     <>
       <img src={logo} alt="Github Explorer" />
       <Title>Dashboard</Title>
-      <Form onSubmit={handleAddRepo}>
+      <Form hasError={!!inputError} onSubmit={handleAddRepo}>
         <input
           ref={refInput}
           type="text"
@@ -45,6 +54,7 @@ export const Dashboard: React.FC = () => {
         />
         <button type="submit">Pesquisar</button>
       </Form>
+      {inputError && <Error>{inputError}</Error>}
       <Repositories>
         {repos.map(repo => {
           return (
